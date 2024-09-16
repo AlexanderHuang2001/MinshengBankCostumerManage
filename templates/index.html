@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}客户运营系统{% endblock %}
+
+{% block content %}
+<h1>客户运营系统</h1>
+
+<div id="app" class="container">
+    {% raw %}
+    <div class="filter-form">
+        <form>
+            <div class="form-row">
+                <input type="text" v-model="filters.ip" placeholder="接口IP">
+                <input type="text" v-model="filters.userId" placeholder="用户ID">
+                <input type="text" v-model="filters.phone" placeholder="手机号">
+            </div>
+            <div class="form-row">
+                <input type="text" v-model="filters.marketingLimit" placeholder="营销次数上限">
+                <input type="text" v-model="filters.greetingLimit" placeholder="回拨次数下限">
+                <input type="text" v-model="filters.riskLimit" placeholder="风控指数上限">
+            </div>
+
+            <div class="province-filter-container">
+                <label for="province-filter">省份过滤:</label>
+                <label><input type="radio" value="include" v-model="filters.provinceFilter"> 包含</label>
+                <label><input type="radio" value="exclude" v-model="filters.provinceFilter"> 排除</label>
+            </div>
+
+            <div class="province-selection">
+                <label class="province-title">省份:</label><br>
+                <div class="province-row">
+                    <label v-for="province in provinces" :key="province"><input type="checkbox" :value="province" v-model="filters.selectedProvinces"> {{ province }}</label>
+                </div>
+            </div>
+
+            <div class="buttons">
+                <button type="button" id="link-interface" @click="searchData">联机搜索</button>
+                <button type="button" id="reset" @click="resetFilters">列表展示</button>
+                <button type="button" id="export" @click="exportData">批量导出</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="table-container">
+        <table v-if="data.length > 0">  <!-- 添加v-if，确保数据存在时渲染表格 -->
+            <thead>
+                <tr>
+                    <th><input type="checkbox" id="select-all" v-model="selectAll"></th>
+                    <th>客户ID</th>
+                    <th>手机号</th>
+                    <th>姓名</th>
+                    <th>省份</th>
+                    <th>城市</th>
+                    <th>地址</th>
+                    <th>IP地址</th>
+                    <th>登录时间</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="(item, index) in paginatedData" :key="index">
+                    <td><input type="checkbox" v-model="selectedRows" :value="item.id"></td>
+                    <td>{{ item.id }}</td>
+                    <td>{{ item.phone }}</td>
+                    <td>{{ item.name }}</td>
+                    <td>{{ item.province }}</td>
+                    <td>{{ item.city }}</td>
+                    <td>{{ item.address }}</td>
+                    <td>{{ item.ip }}</td>
+                    <td>{{ item.loginDate }}</td>
+                    <td class="actions">
+                        <button class="edit">编辑</button>
+                        <button class="delete">删除</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div v-if="data.length === 0">暂无数据</div>  <!-- 如果没有数据，显示提示 -->
+        <div class="pagination" v-if="data.length > 0">
+            <div class="pagination-info">
+                显示第 {{ startIndex + 1 }} 到第 {{ endIndex }} 条记录，总共 {{ filteredData.length }} 条记录
+            </div>
+            <div class="pagination-controls">
+                <button @click="previousPage" :disabled="currentPage === 1">上一页</button>
+                <span class="current-page">{{ currentPage }}</span>
+                <button @click="nextPage" :disabled="currentPage * itemsPerPage >= filteredData.length">下一页</button>
+                <span>每页显示</span>
+                <select v-model="itemsPerPage">
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="15">15</option>
+                </select>
+                <span>条记录</span>
+            </div>
+        </div>
+    </div>
+    {% endraw %}
+</div>
+{% endblock %}
